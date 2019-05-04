@@ -1,0 +1,41 @@
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:context="http://www.springframework.org/schema/context" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:spring="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+   <spring:beans>    
+ 
+ <spring:bean id="environmentVariablesConfiguration"
+    class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+   <spring:property name="algorithm" value="PBEWithMD5AndDES" />
+   <spring:property name="passwordEnvName" value="SECRET_KEY" />
+ </spring:bean>                                      
+  
+ <spring:bean id="configurationEncryptor"
+    class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+   <spring:property name="config" ref="environmentVariablesConfiguration" />
+ </spring:bean>
+ 
+        <spring:bean id="propertyConfigurer" class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer">
+            <spring:constructor-arg ref="configurationEncryptor"/>
+            <spring:property name="locations">
+                <spring:list>
+                    <spring:value>database.properties</spring:value>
+                </spring:list>
+            </spring:property>
+        </spring:bean>
+
+  
+ 
+ </spring:beans>
+
+	<db:oracle-config name="Oracle_Configuration_Database" host="${host}"
+		port="${port}" instance="${instance}" user="${user}" password="${password}" doc:name="Oracle Configuration Database" />
+   
+
+</mule>

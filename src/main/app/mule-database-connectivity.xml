@@ -11,20 +11,19 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
-	<db:oracle-config name="Oracle_Configuration" host="Lenovo-PC"
-		port="1521" instance="XE" user="sawan" password="tiger" doc:name="Oracle Configuration" />
+
 	<http:listener-config name="HTTP_Listener_Configuration"
 		host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />
 	<flow name="databaseFlow">
 		<http:listener config-ref="HTTP_Listener_Configuration"
 			path="/database-api" doc:name="HTTP" />
-		<set-variable doc:name="Variable" value="#[message.inboundProperties.'http.method']" variableName="method"/>
+		
         <logger message="Database Operation Started" level="INFO" doc:name="Logger"/>
-        <enricher target="#[payload]" doc:name="Message Enricher">
-            <db:select config-ref="Oracle_Configuration" doc:name="Select -Database">
-                <db:parameterized-query><![CDATA[SELECT * from employee]]></db:parameterized-query>
+       
+            <db:select config-ref="Oracle_Configuration_Database" doc:name="Select -Database">
+            <db:parameterized-query><![CDATA[SELECT * from employee]]></db:parameterized-query>
             </db:select>
-        </enricher>
+    
         <logger message="Database Operation Completed  Recieved : #[payload]" level="INFO" doc:name="Logger"/>
 	
 		<json:object-to-json-transformer
