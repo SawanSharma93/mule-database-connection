@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
 	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:json="http://www.mulesoft.org/schema/mule/json"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -19,15 +19,32 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			path="/database-api" doc:name="HTTP" />
 		
         <logger message="Database Operation Started" level="INFO" doc:name="Logger"/>
-       
+        <transactional action="ALWAYS_BEGIN" doc:name="Transactional">
+            <db:stored-procedure config-ref="Oracle_Configuration_Database" doc:name="Insert">
+                <db:parameterized-query><![CDATA[{call INSERTEMP(:ID,:NAME,:DESIGNATION)}]]></db:parameterized-query>
+                <db:in-param name="ID" value="#[json:id]"/>
+                <db:in-param name="NAME" value="#[json:name]"/>
+                <db:in-param name="DESIGNATION" value="#[json:position]"/>
+            </db:stored-procedure>
             <db:select config-ref="Oracle_Configuration_Database" doc:name="Select -Database">
-            <db:parameterized-query><![CDATA[SELECT * from employee]]></db:parameterized-query>
+                <db:parameterized-query><![CDATA[SELECT * from employeeyyyy']]></db:parameterized-query>
             </db:select>
+        </transactional>
     
         <logger message="Database Operation Completed  Recieved : #[payload]" level="INFO" doc:name="Logger"/>
 	
 		<json:object-to-json-transformer
 			doc:name="Object to JSON" />
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+           <logger message="Transaction Failed #[message.exception]" level="INFO" doc:name="Logger"/>
+            <set-property propertyName="http.status" value="500" doc:name="Property"/>
+            <set-payload value="{&quot;errorMessage&quot; : &quot;Transaction Failed&quot;, &quot;reason&quot; : &quot;#[message.exception]&quot;,&quot;timeStamp&quot;: &quot;#[server.dateTime.toString()]&quot;}" mimeType="application/json" doc:name="Set Payload" metadata:id="2e28de38-a56a-4244-8d99-757636d7474b"/>
+        </catch-exception-strategy>
+      <!--   <rollback-exception-strategy doc:name="Rollback Exception Strategy">
+            <logger message="Transaction Failed" level="INFO" doc:name="Logger"/>
+            <set-property propertyName="http.status" value="500" doc:name="Property"/>
+            <set-payload value="{&quot;errorMessage&quot; : &quot;Transaction Failed&quot;, &quot;reason&quot; : #[message.exception]}" mimeType="application/json" doc:name="Set Payload" metadata:id="2e28de38-a56a-4244-8d99-757636d7474b"/>
+        </rollback-exception-strategy> -->
 
 	</flow>
 </mule>
