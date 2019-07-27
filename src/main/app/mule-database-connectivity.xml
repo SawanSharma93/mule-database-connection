@@ -27,7 +27,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
                 <db:in-param name="DESIGNATION" value="#[json:position]"/>
             </db:stored-procedure>
             <db:select config-ref="Oracle_Configuration_Database" doc:name="Select -Database">
-                <db:parameterized-query><![CDATA[SELECT * from employeeyyyy']]></db:parameterized-query>
+                <db:parameterized-query><![CDATA[SELECT * from employee']]></db:parameterized-query>
             </db:select>
         </transactional>
     
